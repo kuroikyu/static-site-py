@@ -45,7 +45,6 @@ class LeafNode(HTMLNode):
     def to_html(self):
         if self.value is None:
             raise ValueError("All leaf nodes must have a value")
-
         return super().to_html()
 
 
