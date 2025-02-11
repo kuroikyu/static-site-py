@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -71,6 +71,29 @@ class TestLeafNode(unittest.TestCase):
     def test_leaf_no_tag(self):
         node = LeafNode(None, "Oh my!")
         self.assertEqual(node.to_html(), "Oh my!")
+
+
+class TestParentNode(unittest.TestCase):
+    child_node = LeafNode("a", "Click me!", {
+        "href": "http://example.com", "target": "_blank"})
+
+    def test_Parent_to_html(self):
+        node = ParentNode("p", self.child_node)
+        self.assertEqual(node.to_html(
+        ), '<p><a href="http://example.com" target="_blank">Click me!</a></p>')
+
+    def test_2_parent_to_html(self):
+        parent_node1 = ParentNode("p", self.child_node)
+        parent_node2 = ParentNode("div", parent_node1)
+        self.assertEqual(parent_node2.to_html(
+        ), '<div><p><a href="http://example.com" target="_blank">Click me!</a></p></div>')
+
+    def test_parent_many_children(self):
+        node = ParentNode(
+            "p", [self.child_node, self.child_node, self.child_node, self.child_node])
+        self.assertEqual(node.to_html(),
+                         '<p><a href="http://example.com" target="_blank">Click me!</a><a href="http://example.com" target="_blank">Click me!</a><a href="http://example.com" target="_blank">Click me!</a><a href="http://example.com" target="_blank">Click me!</a></p>'
+                         )
 
 
 if __name__ == "__main__":

@@ -47,3 +47,23 @@ class LeafNode(HTMLNode):
             raise ValueError("All leaf nodes must have a value")
 
         return super().to_html()
+
+
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props=None):
+        super().__init__(tag=tag, children=children, props=props)
+
+    def to_html(self):
+        if self.tag is None:
+            raise ValueError("Missing tag")
+        if self.children is None:
+            raise ValueError("Missing children")
+        children_html = []
+        if self.children is None:
+            pass
+        if isinstance(self.children, list):
+            children_html + \
+                list(map(lambda c: children_html.append(c.to_html()), self.children))
+        else:
+            children_html.append(self.children.to_html())
+        return f"<{self.tag}>" + "".join(children_html) + f"</{self.tag}>"
