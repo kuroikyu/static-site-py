@@ -25,7 +25,10 @@ class TextNode:
         )
 
     def __repr__(self):
-        return f"TextNode(\"{self.text}\", {self.text_type.value.upper()}, \"{self.url}\")"
+        prefix = self.text_type.value.upper().center(
+            8, " ") if self.text_type.value != 'text' else "".center(8, " ")
+        maybe_link = f" ->> {self.url}" if self.url else ""
+        return f"[{prefix}] \"{self.text}\"{maybe_link}"
 
 
 def text_node_to_html_node(text_node: TextNode):
