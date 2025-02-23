@@ -49,37 +49,34 @@ def extract_markdown_links(text):
     return matches
 
 
-def split_nodes_image(old_nodes: list[TextNode]):
+def split_nodes_complex(old_nodes: list[TextNode], text_type: TextType, fn, split_string: str):
     result = []
 
     for node in old_nodes:
-        matches = extract_markdown_images(node.text)
+        if node.text_type != TextType.TEXT:
+            result.append(node)
+            continue
+        matches = fn(node.text)
         target_text = node.text
         for (label, url) in matches:
-            parts = target_text.split(f"![{label}]({url})", 1)
+            split_by = split_string.replace(
+                "{label}", label).replace("{url}", url)
+            parts = target_text.split(split_by, 1)
             if len(parts[0]) > 0:
                 result.append(TextNode(parts[0], TextType.TEXT))
-            result.append(TextNode(label, TextType.IMAGE, url))
+            result.append(TextNode(label, text_type, url))
             target_text = parts[1]
         if len(target_text) > 0:
             result.append(TextNode(target_text, TextType.TEXT))
 
     return result
+
+
+def split_nodes_image(old_nodes: list[TextNode]):
+    return split_nodes_complex(old_nodes, TextType.IMAGE, extract_markdown_images, "![{label}]({url})")
 
 
 def split_nodes_link(old_nodes: list[TextNode]):
-    result = []
+    return split_nodes_complex(old_nodes, TextType.LINK, extract_markdown_links, "[{label}]({url})")
 
-    for node in old_nodes:
-        matches = extract_markdown_links(node.text)
-        target_text = node.text
-        for (label, url) in matches:
-            parts = target_text.split(f"[{label}]({url})", 1)
-            if len(parts[0]) > 0:
-                result.append(TextNode(parts[0], TextType.TEXT))
-            result.append(TextNode(label, TextType.LINK, url))
-            target_text = parts[1]
-        if len(target_text) > 0:
-            result.append(TextNode(target_text, TextType.TEXT))
 
-    return result
