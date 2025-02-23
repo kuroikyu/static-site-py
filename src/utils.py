@@ -80,3 +80,12 @@ def split_nodes_link(old_nodes: list[TextNode]):
     return split_nodes_complex(old_nodes, TextType.LINK, extract_markdown_links, "[{label}]({url})")
 
 
+def text_to_textnodes(text: str):
+    node = TextNode(text, TextType.TEXT)
+    add_bold = split_nodes_delimiter([node], "**", TextType.BOLD)
+    add_italic = split_nodes_delimiter(add_bold, "*", TextType.ITALIC)
+    add_code = split_nodes_delimiter(add_italic, "`", TextType.CODE)
+    add_image = split_nodes_image(add_code)
+    add_link = split_nodes_link(add_image)
+
+    return add_link
