@@ -1,3 +1,4 @@
+import re
 from textnode import TextNode, TextType
 
 
@@ -46,3 +47,39 @@ def extract_markdown_links(text):
     image_regex = r"(?<!!)\[(.*?)\]\((.*?)\)"
     matches = re.findall(image_regex, text)
     return matches
+
+
+def split_nodes_image(old_nodes: list[TextNode]):
+    result = []
+
+    for node in old_nodes:
+        matches = extract_markdown_images(node.text)
+        target_text = node.text
+        for (label, url) in matches:
+            parts = target_text.split(f"![{label}]({url})", 1)
+            if len(parts[0]) > 0:
+                result.append(TextNode(parts[0], TextType.TEXT))
+            result.append(TextNode(label, TextType.IMAGE, url))
+            target_text = parts[1]
+        if len(target_text) > 0:
+            result.append(TextNode(target_text, TextType.TEXT))
+
+    return result
+
+
+def split_nodes_link(old_nodes: list[TextNode]):
+    result = []
+
+    for node in old_nodes:
+        matches = extract_markdown_links(node.text)
+        target_text = node.text
+        for (label, url) in matches:
+            parts = target_text.split(f"[{label}]({url})", 1)
+            if len(parts[0]) > 0:
+                result.append(TextNode(parts[0], TextType.TEXT))
+            result.append(TextNode(label, TextType.LINK, url))
+            target_text = parts[1]
+        if len(target_text) > 0:
+            result.append(TextNode(target_text, TextType.TEXT))
+
+    return result

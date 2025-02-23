@@ -1,6 +1,6 @@
 import unittest
 
-from utils import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from utils import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image
 from textnode import TextNode, TextType
 
 
@@ -128,6 +128,67 @@ class TestExtractMarkdownLinks(unittest.TestCase):
         md = "![rick roll](https://i.imgur.com/aKaOqIh.gif)"
         test = extract_markdown_links(md)
         self.assertEqual(test, [])
+
+
+class TestSplitNodesImage(unittest.TestCase):
+    def test_integrated_image(self):
+        node = TextNode("This is text with an image ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev) hi",
+                        TextType.TEXT)
+        result = split_nodes_image([node])
+        hope = [
+            TextNode("This is text with an image ", TextType.TEXT),
+            TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("to youtube", TextType.IMAGE,
+                     "https://www.youtube.com/@bootdotdev"),
+            TextNode(" hi", TextType.TEXT),
+        ]
+
+        self.assertListEqual(result, hope)
+
+    def test_integrated_link(self):
+        node = TextNode("This is text with an image ![to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev) bye",
+                        TextType.TEXT)
+        result = split_nodes_image([node])
+        hope = [
+            TextNode("This is text with an image ", TextType.TEXT),
+            TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev"),
+            TextNode(
+                " and [to youtube](https://www.youtube.com/@bootdotdev) bye", TextType.TEXT),
+        ]
+
+        self.assertListEqual(result, hope)
+
+
+class TestSplitNodesLink(unittest.TestCase):
+    def test_integrated_link(self):
+        node = TextNode("This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev) bye",
+                        TextType.TEXT)
+        result = split_nodes_link([node])
+        hope = [
+            TextNode("This is text with a link ", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("to youtube", TextType.LINK,
+                     "https://www.youtube.com/@bootdotdev"),
+            TextNode(" bye", TextType.TEXT),
+        ]
+
+        self.assertListEqual(result, hope)
+
+    def test_integrated_link(self):
+        node = TextNode("This is text with an image [to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev) hi",
+                        TextType.TEXT)
+        result = split_nodes_image([node])
+        hope = [
+            TextNode(
+                "This is text with an image [to boot dev](https://www.boot.dev) and ", TextType.TEXT),
+            TextNode("to youtube", TextType.IMAGE,
+                     "https://www.youtube.com/@bootdotdev"),
+            TextNode(" hi", TextType.TEXT),
+        ]
+
+        self.assertListEqual(result, hope)
 
 
 if __name__ == "__main__":
