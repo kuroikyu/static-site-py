@@ -63,6 +63,8 @@ class ParentNode(HTMLNode):
         if isinstance(self.children, list):
             children_html + \
                 list(map(lambda c: children_html.append(c.to_html()), self.children))
-        else:
+        elif hasattr(self.children, "to_html"):
             children_html.append(self.children.to_html())
-        return f"<{self.tag}>" + "".join(children_html) + f"</{self.tag}>"
+        else:
+            children_html.append(str(self.children))
+        return f"<{self.tag}>{''.join(children_html)}</{self.tag}>"
