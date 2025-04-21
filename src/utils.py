@@ -94,10 +94,10 @@ def text_to_textnodes(text: str):
     return add_link
 
 
-def copy_static_to_public():
+def copy_static_to_directory(target_directory):
     local_root = "./"
     source_directory = "static"
-    target_directory = "public"
+    target_directory = target_directory
     local_target_directory = local_root + target_directory
     local_source_directory = local_root + source_directory
 
