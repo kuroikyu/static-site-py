@@ -1,4 +1,5 @@
 from textnode import TextNode, TextType, text_node_to_html_node
+from utils import copy_static_to_public
 
 
 def main():
@@ -8,6 +9,8 @@ def main():
 
     my_leaf = text_node_to_html_node(my_node)
     print(my_leaf.to_html())
+
+    copy_static_to_public()
 
 
 main()

@@ -1,4 +1,6 @@
 import re
+import os
+import shutil
 from textnode import TextNode, TextType
 
 
@@ -90,3 +92,55 @@ def text_to_textnodes(text: str):
     add_link = split_nodes_link(add_image)
 
     return add_link
+
+
+def copy_static_to_public():
+    local_root = "./"
+    source_directory = "static"
+    target_directory = "public"
+    local_target_directory = local_root + target_directory
+    local_source_directory = local_root + source_directory
+
+    # Delete and recreate target_directory
+    root_directories = os.listdir(local_root)
+    if target_directory in root_directories:
+        delete_and_recreate_directory(local_target_directory)
+    else:
+        os.mkdir(local_target_directory)
+
+    # Copy contents of static to target_directory
+    copy_directory_to_directory(local_source_directory, local_target_directory)
+
+
+def delete_and_recreate_directory(target: str):
+    shutil.rmtree(target)
+    os.mkdir(target)
+
+
+def ensure_directory_exists(target: str):
+    if not os.path.exists(target):
+        os.mkdir(target)
+
+
+def copy_directory_to_directory(source: str, target: str):
+    directories = []
+
+    ensure_directory_exists(target)
+
+    for entry in os.listdir(source):
+        entry_path = os.path.join(source, entry)
+        target_path = os.path.join(target, entry)
+
+        if os.path.isfile(entry_path):
+            shutil.copy(entry_path, target_path)
+
+        elif os.path.isdir(entry_path):
+            directories.append(entry)
+
+        else:
+            print(f"[ERROR]: {entry_path} is not a file, nor a directory.")
+
+    for directory in directories:
+        source_path = os.path.join(source, directory)
+        target_path = os.path.join(target, directory)
+        copy_directory_to_directory(source_path, target_path)
